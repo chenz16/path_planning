@@ -6,5 +6,5 @@ CXX_FLAGS =   -std=c++11
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project/src/Eigen-3.3 
+CXX_INCLUDES = -I/home/chenz/Documents/Udacity/path_planning/src/Eigen-3.3 
 

@@ -1,9 +1,11 @@
 #include "PP.h"
-#include <cppad/cppad.hpp>
-#include <cppad/ipopt/solve.hpp>
+//#include <cppad/cppad.hpp>
+//#include <cppad/ipopt/solve.hpp>
 #include "Eigen-3.3/Eigen/Core"
 //#include "helpfunc.cpp"
-#include "MPC.h"
+//#include "MPC.h"
+#include <algorithm>    // std::max
+using namespace std;
 
 
 PP::PP() {}
@@ -24,7 +26,7 @@ void PP::RetrievePreviousPathInfo(vector<double> previous_path_x, vector<double>
 
   // get retrieve path ending point position x, y and angle
   size_t p_size = previous_path_x.size();
-  cout<<"p_size "<< p_size<<"\n";
+  //cout<<"p_size "<< p_size<<"\n";
   if(p_size == 0)
   {
       PrevPath.x_end = EgoVeh_info.x;
@@ -108,17 +110,10 @@ void PP::generate_path_circle() {
   double pos_x = PrevPath.x_end;
   double pos_y = PrevPath.y_end;
   double angle = PrevPath.yaw_end;
-  cout<<"angle" << angle << endl;
+  //cout<<"angle" << angle << endl;
   size_t j=0;
   for(int i = PrevPath.path_size; i < path_size; i++)
   {
-      /*NewPath.x[i] = pos_x+(dist_inc)*cos(angle+(j+1)*(M_PI/100.0));
-      NewPath.y[i] = pos_y+(dist_inc)*cos(angle+(j+1)*(M_PI/100.0));
-
-      NewPath.x.push_back(pos_x+dist_inc*cos(angle+(j+1)*(M_PI/100.0)));
-      NewPath.y.push_back(pos_y+dist_inc*sin(angle+(j+1)*(M_PI/100.0)));
-      pos_x = NewPath.x[i];
-      pos_y = NewPath.y[i];*/
       NewPath.x.push_back(pos_x+(dist_inc)*cos(angle+(j+1)*M_PI/100));
       NewPath.y.push_back(pos_y+(dist_inc)*sin(angle+(j+1)*M_PI/100));
       pos_x += dist_inc*cos(angle+(j+1)*M_PI/100);
@@ -127,6 +122,45 @@ void PP::generate_path_circle() {
       j += 1;
   }
 }
+
+
+
+double PP::generate_path_speed(double s_ego, double s_front, double v_ego, double v_front)
+{  double delt_s = s_front - s_ego;
+   double speed_ref = V_ref*(1.0-exp(-1.2*(delt_s-10.0)/20.0));
+   speed_ref = max(speed_ref,0.0);
+   double delt_speed = v_front - v_ego;
+   double acc_plan = delt_speed*0.2;
+   acc_plan = min(acc_plan,5.0);
+   acc_plan = max (acc_plan, -5.0);
+   return v_ego + acc_plan*DT;
+}
+
+void PP::generate_s_path()
+{
+  ResetNewPath();
+  double s_ego = EgoVeh_info.s;
+  double v_ego = EgoVeh_info.speed;
+  double s_front = FrontVeh_info.s;
+  double v_front = FrontVeh_info.speed;
+  for (int i=0; i< NewPath.path_size; i++)
+  {
+    double v_ego_new = generate_path_speed(s_ego, s_front, v_ego,v_front);
+    s_ego = s_ego + (v_ego+v_ego_new)*DT/2.0;
+    s_front = s_front + v_front * DT;
+    v_ego = v_ego_new;
+    NewPath.s.push_back(s_ego);
+  }
+  }
+
+/*void PP::update_path(vector<vector<double>> xy_path){
+  RetainPathXY();
+  for(int i=PrevPath.path_size; i < NewPath.path_size; i++)
+  {
+    NewPath.x.push_back(xy_path[0][i]);
+    NewPath.y.push_back(xy_path[1][i]);
+  }
+}*/
 
 
 /*vector<double> PP::generate_path_MPC()
@@ -149,12 +183,3 @@ void PP::generate_path_circle() {
 
    return s_path;
 }*/
-
-void PP::update_path(vector<vector<double>> xy_path){
-  RetainPathXY();
-  for(int i=PrevPath.path_size; i < NewPath.path_size; i++)
-  {
-    NewPath.x.push_back(xy_path[0][i]);
-    NewPath.y.push_back(xy_path[1][i]);
-  }
-}

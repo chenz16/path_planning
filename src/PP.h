@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Eigen-3.3/Eigen/Core"
+#include <algorithm>    // std::max
 //#include "helpfunc.cpp"
 
 using namespace std;
@@ -61,8 +62,10 @@ class PP {
   void RetainPathXY();
   void generate_path_straight();
   void generate_path_circle();
-  vector<double> generate_path_MPC();
-  void update_path(vector<vector<double>> xy_path);
+	double generate_path_speed(double s_ego, double s_front,double v_ego, double v_front);
+	void generate_s_path();
+  //vector<double> generate_path_MPC();
+  //void update_path(vector<vector<double>> xy_path);
 
 };
 

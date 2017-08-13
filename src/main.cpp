@@ -11,7 +11,7 @@
 #include "json.hpp"
 #include <chrono>
 #include "PP.h"
-#include "MPC.h"
+//#include "MPC.h"
 #include "helpfunc.cpp"
 
 
@@ -63,7 +63,7 @@ int main() {
     //auto sdata = string(data).substr(0, length);
     //cout << sdata << endl;
     PP pp;
-    MPC mpc;
+    //MPC mpc;
     bool veh_start = false;
 
 
@@ -101,65 +101,37 @@ int main() {
 
           	vector<double> next_x_vals;
           	vector<double> next_y_vals;
+            // TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
+
 
             vector<double> veh_info = {car_x, car_y, car_s, car_d, car_yaw, car_speed};
             pp.RetrievePreviousPathInfo(previous_path_x, previous_path_y, veh_info);
             pp.update_env(sensor_fusion);
             //pp.generate_path_circle();
             pp.FindFront();
-          Eigen::VectorXd coeffs(2);
-          Eigen::VectorXd state(3);
-          coeffs << pp.FrontVeh_info.s, pp.FrontVeh_info.speed;
+            pp.generate_s_path();
+            vector<double> s_path = pp.NewPath.s;
 
-          double s = pp.EgoVeh_info.s;
-          double speed = pp.EgoVeh_info.speed;
-          double cte = pp.FrontVeh_info.s - pp.EgoVeh_info.s;
-
-          state <<s, speed, cte;
-          //vector<double> mpc_path=mpc.Solve(state, coeffs);
-          //vector<double> start_path;
-          vector<double> s_path (50);
-          //vector<double> ss_path;
-
-        //if (veh_start==false) {
-            for (int i=0; i< 50; i++)
-            {
-              s_path[i]=car_s +2.0*i*0.02;
-            }
-          /*  if (car_speed > 1) {veh_start = true;}
-
-        } else { s_path = mpc.Solve(state, coeffs);}*/
-
-            //if (veh_start==false && car_speed<0.5)
-            //{ s_path = start_path;
-              //veh_start = true;}
-            //else {s_path = mpc_path;}
-
-// MPC
-              size_t N = 15;
-              mpc.set_para(15);
-              //cout<<mpc.v_start<<endl;
-              vector<double> ss_path=mpc.Solve(state, coeffs);
-
-
-
-          cout<<"veh_start" << veh_start<<endl;
 
           vector<vector<double>> xy_path(2, vector<double>(pp.NewPath.path_size));
           for (int i=0; i< pp.NewPath.path_size; i++){
               vector<double> xy_grid = getXY(s_path[i], 6, map_waypoints_s, map_waypoints_x, map_waypoints_y);
-              xy_path[0][i] = xy_grid[0];
-              xy_path[1][i] = xy_grid[1];
+              //xy_path[0][i] = xy_grid[0];
+              //xy_path[1][i] = xy_grid[1];
+              next_x_vals.push_back(xy_grid[0]);
+              next_y_vals.push_back(xy_grid[1]);
             }
 
-            pp.update_path(xy_path);
+            //pp.update_path(xy_path);
             //next_x_vals  = pp.NewPath.x;
             //next_y_vals  = pp.NewPath.y;
             next_x_vals = xy_path[0];
             next_y_vals  =xy_path[1];
 
 
-          	// TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
+
+
+            //END
           	msgJson["next_x"] = next_x_vals;
           	msgJson["next_y"] = next_y_vals;
 

@@ -1,3 +1,3 @@
-/home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project/build/CMakeFiles/edit_cache.dir
-/home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project/build/CMakeFiles/rebuild_cache.dir
-/home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project/build/CMakeFiles/path_planning.dir
+/home/chenz/Documents/Udacity/path_planning/build/CMakeFiles/edit_cache.dir
+/home/chenz/Documents/Udacity/path_planning/build/CMakeFiles/rebuild_cache.dir
+/home/chenz/Documents/Udacity/path_planning/build/CMakeFiles/path_planning.dir

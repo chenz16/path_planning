@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project
+CMAKE_SOURCE_DIR = /home/chenz/Documents/Udacity/path_planning
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project/build
+CMAKE_BINARY_DIR = /home/chenz/Documents/Udacity/path_planning/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project/build/CMakeFiles /home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/chenz/Documents/Udacity/path_planning/build/CMakeFiles /home/chenz/Documents/Udacity/path_planning/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/chenz/Documents/Udacity/PathPlanning/CarND-Path-Planning-Project/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/chenz/Documents/Udacity/path_planning/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -122,33 +122,6 @@ path_planning: cmake_check_build_system
 path_planning/fast:
 	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/build
 .PHONY : path_planning/fast
-
-src/MPC.o: src/MPC.cpp.o
-
-.PHONY : src/MPC.o
-
-# target to build an object file
-src/MPC.cpp.o:
-	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/MPC.cpp.o
-.PHONY : src/MPC.cpp.o
-
-src/MPC.i: src/MPC.cpp.i
-
-.PHONY : src/MPC.i
-
-# target to preprocess a source file
-src/MPC.cpp.i:
-	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/MPC.cpp.i
-.PHONY : src/MPC.cpp.i
-
-src/MPC.s: src/MPC.cpp.s
-
-.PHONY : src/MPC.s
-
-# target to generate assembly for a file
-src/MPC.cpp.s:
-	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/MPC.cpp.s
-.PHONY : src/MPC.cpp.s
 
 src/PP.o: src/PP.cpp.o
 
@@ -213,9 +186,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... path_planning"
-	@echo "... src/MPC.o"
-	@echo "... src/MPC.i"
-	@echo "... src/MPC.s"
 	@echo "... src/PP.o"
 	@echo "... src/PP.i"
 	@echo "... src/PP.s"
