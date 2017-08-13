@@ -4,8 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/chenz/Documents/Udacity/path_planning/src/PP.cpp" "/home/chenz/Documents/Udacity/path_planning/build/CMakeFiles/path_planning.dir/src/PP.cpp.o"
-  "/home/chenz/Documents/Udacity/path_planning/src/main.cpp" "/home/chenz/Documents/Udacity/path_planning/build/CMakeFiles/path_planning.dir/src/main.cpp.o"
+  "/home/chenz/Documents/GitHub/path_planning/src/PP.cpp" "/home/chenz/Documents/GitHub/path_planning/build/CMakeFiles/path_planning.dir/src/PP.cpp.o"
+  "/home/chenz/Documents/GitHub/path_planning/src/main.cpp" "/home/chenz/Documents/GitHub/path_planning/build/CMakeFiles/path_planning.dir/src/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
