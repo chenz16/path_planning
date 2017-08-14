@@ -52,6 +52,9 @@ class PP {
 
   PathInfo NewPath;
   PathInfo PrevPath;
+	vector<double> map_waypoints_s;
+	vector<double> map_waypoints_x;
+	vector<double> map_waypoints_s;
 
 
   void RetrievePreviousPathInfo(vector<double> previous_path_x, vector<double> previous_path_y, vector<double> veh_info);

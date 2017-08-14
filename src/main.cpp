@@ -13,6 +13,7 @@
 #include "PP.h"
 //#include "MPC.h"
 #include "helpfunc.cpp"
+#include "spline.h"
 
 
 using namespace std;
@@ -106,7 +107,7 @@ int main() {
 
             vector<double> veh_info = {car_x, car_y, car_s, car_d, car_yaw, car_speed};
             pp.RetrievePreviousPathInfo(previous_path_x, previous_path_y, veh_info);
-            pp.update_env(sensor_fusion);
+            pp.update_env(sensor_fusion, map_waypoints_s, map_waypoints_x, map_waypoints_y);
             //pp.generate_path_circle();
             pp.FindFront();
             pp.generate_s_path();

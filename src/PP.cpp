@@ -45,9 +45,12 @@ void PP::RetrievePreviousPathInfo(vector<double> previous_path_x, vector<double>
 }
 
 
-void PP::update_env(vector<vector<double>> other_vehicles) {
+void PP::update_env(vector<vector<double>> other_vehicles, vector<double> map_waypoints_s,
+                    vector<double> map_waypoints_x, vector<double> map_waypoints_y) {
     this->other_vehicles = other_vehicles;
-
+    this->map_waypoints_x = map_waypoints_x;
+    this->map_waypoints_y = map_waypoints_y;
+    this->map_waypoints_s = map_waypoints_s;
 }
 
 
@@ -145,13 +148,28 @@ void PP::generate_s_path()
   double v_front = FrontVeh_info.speed;
   for (int i=0; i< NewPath.path_size; i++)
   {
-    double v_ego_new = generate_path_speed(s_ego, s_front, v_ego,v_front);
-    s_ego = s_ego + (v_ego+v_ego_new)*DT/2.0;
+    double v_ego_next= generate_path_speed(s_ego, s_front, v_ego,v_front);
+    s_ego = s_ego + (v_ego+v_ego_next)*DT/2.0;
     s_front = s_front + v_front * DT;
-    v_ego = v_ego_new;
+    v_ego = v_ego_next;
     NewPath.s.push_back(s_ego);
   }
   }
+
+  void PP::lane_keep_path()
+  {
+    double v_ego=V_ref;
+    double s_ego = EgoVeh_info.s;
+    ResetNewPath();
+    for (int i=0; i<NewPath.path_size; i++)
+    {
+         s_ego += v_ego*DT;
+         NewPath.s.push_back(s_ego)
+    }
+
+  }
+
+
 
 /*void PP::update_path(vector<vector<double>> xy_path){
   RetainPathXY();
@@ -161,7 +179,6 @@ void PP::generate_s_path()
     NewPath.y.push_back(xy_path[1][i]);
   }
 }*/
-
 
 /*vector<double> PP::generate_path_MPC()
 {
