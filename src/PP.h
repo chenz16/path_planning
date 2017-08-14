@@ -44,7 +44,7 @@ class PP {
   virtual ~PP();
 
   size_t path_size = 50;
-  double V_ref = 50;
+  double V_ref = 20;
   VehInfo EgoVeh_info;
   VehInfo FrontVeh_info;
   vector<vector<double>> other_vehicles;
@@ -54,12 +54,12 @@ class PP {
   PathInfo PrevPath;
 	vector<double> map_waypoints_s;
 	vector<double> map_waypoints_x;
-	vector<double> map_waypoints_s;
+	vector<double> map_waypoints_y;
 
 
   void RetrievePreviousPathInfo(vector<double> previous_path_x, vector<double> previous_path_y, vector<double> veh_info);
   //void init_env(vector<double> maps_s, vector<double> maps_s, vector<double> maps_d);
-  void update_env(vector<vector<double>> other_vehicles);
+  void update_env(vector<vector<double>> other_vehicles, vector<double> map_waypoints_s,vector<double> map_waypoints_x, vector<double> map_waypoints_y);
   void FindFront();
   void ResetNewPath();
   void RetainPathXY();
@@ -67,6 +67,7 @@ class PP {
   void generate_path_circle();
 	double generate_path_speed(double s_ego, double s_front,double v_ego, double v_front);
 	void generate_s_path();
+	void lane_keep_path();
   //vector<double> generate_path_MPC();
   //void update_path(vector<vector<double>> xy_path);
 

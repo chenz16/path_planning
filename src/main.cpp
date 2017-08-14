@@ -108,29 +108,19 @@ int main() {
             vector<double> veh_info = {car_x, car_y, car_s, car_d, car_yaw, car_speed};
             pp.RetrievePreviousPathInfo(previous_path_x, previous_path_y, veh_info);
             pp.update_env(sensor_fusion, map_waypoints_s, map_waypoints_x, map_waypoints_y);
-            //pp.generate_path_circle();
             pp.FindFront();
+            //pp.lane_keep_path();
             pp.generate_s_path();
             vector<double> s_path = pp.NewPath.s;
 
+          vector<vector<double>> xy_path(2, vector<double>(pp.path_size));
+          for (int i=0; i< pp.path_size; i++){
 
-          vector<vector<double>> xy_path(2, vector<double>(pp.NewPath.path_size));
-          for (int i=0; i< pp.NewPath.path_size; i++){
-              vector<double> xy_grid = getXY(s_path[i], 6, map_waypoints_s, map_waypoints_x, map_waypoints_y);
-              //xy_path[0][i] = xy_grid[0];
-              //xy_path[1][i] = xy_grid[1];
+              double next_s = s_path[i];
+              vector<double> xy_grid = getXY(next_s, 2, map_waypoints_s, map_waypoints_x, map_waypoints_y);
               next_x_vals.push_back(xy_grid[0]);
               next_y_vals.push_back(xy_grid[1]);
             }
-
-            //pp.update_path(xy_path);
-            //next_x_vals  = pp.NewPath.x;
-            //next_y_vals  = pp.NewPath.y;
-            next_x_vals = xy_path[0];
-            next_y_vals  =xy_path[1];
-
-
-
 
             //END
           	msgJson["next_x"] = next_x_vals;

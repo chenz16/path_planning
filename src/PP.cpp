@@ -17,12 +17,14 @@ void PP::RetrievePreviousPathInfo(vector<double> previous_path_x, vector<double>
   PrevPath.x = previous_path_x;
   PrevPath.y = previous_path_y;
   PrevPath.path_size = previous_path_x.size();
+  NewPath.path_size = path_size;
   EgoVeh_info.x = veh_info[0];
   EgoVeh_info.y = veh_info[1];
   EgoVeh_info.s = veh_info[2];
   EgoVeh_info.d = veh_info[3];
   EgoVeh_info.yaw = veh_info[4]/180.0*M_PI;
   EgoVeh_info.speed = veh_info[5];
+
 
   // get retrieve path ending point position x, y and angle
   size_t p_size = previous_path_x.size();
@@ -134,23 +136,24 @@ double PP::generate_path_speed(double s_ego, double s_front, double v_ego, doubl
    speed_ref = max(speed_ref,0.0);
    double delt_speed = v_front - v_ego;
    double acc_plan = delt_speed*0.2;
-   acc_plan = min(acc_plan,5.0);
-   acc_plan = max (acc_plan, -5.0);
+   acc_plan = min(acc_plan,1.0);
+   acc_plan = max (acc_plan, -1.0);
    return v_ego + acc_plan*DT;
 }
 
 void PP::generate_s_path()
 {
   ResetNewPath();
+  NewPath.s={};
   double s_ego = EgoVeh_info.s;
   double v_ego = EgoVeh_info.speed;
   double s_front = FrontVeh_info.s;
   double v_front = FrontVeh_info.speed;
-  for (int i=0; i< NewPath.path_size; i++)
+  for (int i=0; i< path_size; i++)
   {
     double v_ego_next= generate_path_speed(s_ego, s_front, v_ego,v_front);
-    s_ego = s_ego + (v_ego+v_ego_next)*DT/2.0;
-    s_front = s_front + v_front * DT;
+    s_ego +=  (v_ego+v_ego_next)*DT/2.0;
+    s_front += v_front * DT;
     v_ego = v_ego_next;
     NewPath.s.push_back(s_ego);
   }
@@ -161,10 +164,10 @@ void PP::generate_s_path()
     double v_ego=V_ref;
     double s_ego = EgoVeh_info.s;
     ResetNewPath();
-    for (int i=0; i<NewPath.path_size; i++)
+    for (int i=0; i< path_size; i++)
     {
-         s_ego += v_ego*DT;
-         NewPath.s.push_back(s_ego)
+         s_ego += v_ego*0.02;
+         NewPath.s.push_back(s_ego);
     }
 
   }
