@@ -128,8 +128,6 @@ void PP::generate_path_circle() {
   }
 }
 
-
-
 double PP::generate_path_speed(double s_ego, double s_front, double v_ego, double v_front)
 {  double delt_s = s_front - s_ego;
    double speed_ref = V_ref*(1.0-exp(-1.2*(delt_s-10.0)/20.0));
@@ -152,12 +150,14 @@ void PP::generate_s_path()
   for (int i=0; i< path_size; i++)
   {
     double v_ego_next= generate_path_speed(s_ego, s_front, v_ego,v_front);
+    //v_ego_next = V_ref;
     s_ego +=  (v_ego+v_ego_next)*DT/2.0;
     s_front += v_front * DT;
     v_ego = v_ego_next;
     NewPath.s.push_back(s_ego);
   }
   }
+
 
   void PP::lane_keep_path()
   {
