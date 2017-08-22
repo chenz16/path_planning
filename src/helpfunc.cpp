@@ -157,111 +157,127 @@ vector<double> getXY(double s, double d, vector<double> maps_s, vector<double> m
 
 }
 
-int FindFront(double s, double d, vector<vector<double>> other_vehicles){
-  int indx=0 ;
-  int N_veh = other_vehicles.size();
-  double dis_front = 10000;
-  for (int i =0; i< N_veh; i++){
-     double s_diff = other_vehicles[i][5] - s;
-     double d_diff = d - other_vehicles[i][6];
-     if (abs(d_diff)<2 && s_diff >=0 && s_diff <= 50 && s_diff < dis_front){
-        indx = i;
-     }
+// road map
+class Map {
+public:
+
+  Map(const Points & x,
+      const Points & y,
+      const Points & s,
+      const Points & dx,
+      const Points & dy):
+      x(x), y(y), s(s), dx(dx), dy(dy) {
+
+    auto n = x.size();
+    assert (x.size() == n);
+    assert (y.size() == n);
+    assert (s.size() == n);
+    assert (dx.size() == n);
+    assert (dy.size() == n);
+
+    double HALF_LANE = LANE_WIDTH / 2;
+    // initialize gitter - adding gitter for numerical stability
+    double lower = -0.5;
+    double upper = 0.1;
+    uniform_real_distribution<double> unif(lower, upper);
+    default_random_engine re(random_device{}());
+    // Calculate trajectory for each lane based on waypoints
+    for (int lane = 0; lane <= RIGHTMOST_LANE; ++lane) {
+      vector<double> lane_x;
+      vector<double> lane_y;
+      vector<double> lane_s;
+      for (auto i = 0; i < n; ++i) {
+        double jitter = -0.2;//unif(re);
+        // map to middle of lane
+        lane_x.push_back(x[i] + dx[i] * (HALF_LANE + lane*LANE_WIDTH + jitter));
+        lane_y.push_back(y[i] + dy[i] * (HALF_LANE + lane*LANE_WIDTH + jitter));
+        lane_s.push_back(s[i]);
+      }
+      // this is a quick fix to make it work when car goes back to starting point
+      // a more realistic solution will be to fit local models segment by segment
+      for (auto i = 0; i < n; ++i) {
+        double jitter = -0.2;//unif(re);
+        lane_x.push_back(x[i] + dx[i] * (HALF_LANE + lane*LANE_WIDTH + jitter));
+        lane_y.push_back(y[i] + dy[i] * (HALF_LANE + lane*LANE_WIDTH + jitter));
+        lane_s.push_back(s[i] + MAX_S);
+      }
+      Trajectory s2x; s2x.set_points(lane_s, lane_x);
+      Trajectory s2y; s2y.set_points(lane_s, lane_y);
+      lane_s2x.push_back(s2x);
+      lane_s2y.push_back(s2y);
+    }
 
   }
-  return indx;
+  virtual ~Map() {}
 
-}
+  // find the index of lane given the d coordinate of a car
+  // lane starts with index 0 from the leftmost
+  int find_lane(double car_d) const {
+    int lane = floor(car_d / LANE_WIDTH);
+    // assert ((lane >= 0) and (lane <= RIGHTMOST_LANE));
+    // some cars may have invalid d value at the beginning
+    lane = max(0, lane);
+    lane = min(RIGHTMOST_LANE, lane);
+    return lane;
+  }
 
+  // find the index of a peer car immediately before self-driving-car
+  // on a certain lane
+  // return -1 if there is no car found
+  int find_front_car_in_lane(const SelfDrivingCar & sdc,
+                             const vector<PeerCar> & peer_cars,
+                             int lane) const {
+    int found_car = -1;
+    double found_dist = INF;
+    for (auto i = 0; i < peer_cars.size(); ++i) {
+      const PeerCar & car = peer_cars[i];
+      auto car_lane = find_lane(car.d);
+      if ( (car_lane == lane) and (car.s >= sdc.s) ) {
+        double dist = car.s - sdc.s;
+        if (dist < found_dist) {
+          found_car = i;
+          found_dist = dist;
+        }
+      }
+    }
+    return found_car;
+  }
 
+  // find the index of a peer car immediately after self-driving-car
+  // on a certain lane
+  // return -1 if there is no car found
+  int find_rear_car_in_lane(const SelfDrivingCar & sdc,
+                            const vector<PeerCar> & peer_cars,
+                            int lane) const {
+    int found_car = -1;
+    double found_dist = INF;
+    for (auto i = 0; i < peer_cars.size(); ++i) {
+      const PeerCar & car = peer_cars[i];
+      auto car_lane = find_lane(car.d);
+      if ( (car_lane == lane) and (car.s <= sdc.s) ) {
+        double dist = sdc.s - car.s;
+        if (dist < found_dist) {
+          found_car = i;
+          found_dist = dist;
+        }
+      }
+    }
+    return found_car;
+  }
 
+public:
+  Points x; // map coordinates
+  Points y;
+  Points s; // distance from starting point
+  // vector orthogonal to road
+  Points dx;
+  Points dy;
 
+  const double LANE_WIDTH = 4; /*meters*/
+  const int RIGHTMOST_LANE = 2; /*lane 0, 1, 2*/
+  const double MAX_S = 6945.554;
 
-
-            /*
-            double dist_inc = 0.5;
-            for(int i = 0; i < 2; i++)
-            {
-              next_x_vals.push_back(car_x+(dist_inc*i)*cos(deg2rad(car_yaw)));
-              next_y_vals.push_back(car_y+(dist_inc*i)*sin(deg2rad(car_yaw)));
-            } */
-
-            /*double pos_x;
-            double pos_y;
-            double angle;
-            int path_size = previous_path_x.size();
-
-            for(int i = 0; i < path_size; i++)
-            {
-                next_x_vals.push_back(previous_path_x[i]);
-                next_y_vals.push_back(previous_path_y[i]);
-            }
-
-            if(path_size == 0)
-            {
-                pos_x = car_x;
-                pos_y = car_y;
-                angle = deg2rad(car_yaw);
-            }
-            else
-            {
-                pos_x = previous_path_x[path_size-1];
-                pos_y = previous_path_y[path_size-1];
-
-                double pos_x2 = previous_path_x[path_size-2];
-                double pos_y2 = previous_path_y[path_size-2];
-                angle = atan2(pos_y-pos_y2,pos_x-pos_x2);
-            } */
-
-
-            /*int ind_nearest = FindFront(car_s, car_d, sensor_fusion);
-            double dist_inc = 0;
-            double dis_near = sensor_fusion[ind_nearest][5];
-            dis_near = dis_near - car_s;
-            double vx_near = sensor_fusion[ind_nearest][3];
-            double vy_near = sensor_fusion[ind_nearest][4];
-            double vs_near = sqrt(vx_near*vx_near + vy_near*vy_near);
-            cout<<"vs_near"<<vs_near<<" dis_near"<<dis_near<<endl;
-
-            if ((dis_near <= 50.0) && (dis_near >=0)){
-              dist_inc = (vs_near-7) * 0.02;
-            } else {
-              dist_inc = (50-7)*0.02;
-            } */
-
-            //dist_inc = 0.2;
-            /*for(int i = 0; i < 50-path_size; i++)
-            {
-                pos_x += (dist_inc)*cos(angle+(i+1)*(pi()/100));
-                pos_y += (dist_inc)*sin(angle+(i+1)*(pi()/100));
-
-                next_x_vals.push_back(pos_x);
-                next_y_vals.push_back(pos_y);
-                //cout<<pos_x<<"-"<<pos_y<<endl;
-
-            }*/
-
-            /*cout<<"end path s ="<< end_path_s  <<"path size = "<< path_size<<endl;
-            cout<<"dis_near="<< dis_near<<endl;
-            double pos_s ;
-            //double dist_inc=0.5;
-            int timer = 0;
-            timer += 1;
-             if (timer<2) {
-              pos_s = car_s + dist_inc*(path_size-1);
-            } else {pos_s= end_path_s;}*/
-
-            //double car_front_speed = vx_near;
-            //double car_front_s = sensor_fusion[ind_nearest][5];
-            //double car_front_d = sensor_fusion[ind_nearest][6];
-             //vector<double> s_traj = car_following(car_s, car_speed, car_front_s,car_front_speed);
-
-
-          /*  for (int i = 0; i < 50- path_size; i++)
-            {
-              pos_s += dist_inc;
-              auto xy = getXY(pos_s, 10, map_waypoints_s, map_waypoints_x, map_waypoints_y);
-              cout<<xy[0]<<"-"<<xy[1]<<endl;
-              next_x_vals.push_back(xy[0]);
-              next_y_vals.push_back(xy[1]);
-            }*/
+  // mapping from (s) -> (x, y) for each lane
+  vector<Trajectory> lane_s2x;
+  vector<Trajectory> lane_s2y;
+};

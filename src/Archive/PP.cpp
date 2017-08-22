@@ -6,6 +6,7 @@
 //#include "MPC.h"
 #include <algorithm>    // std::max
 using namespace std;
+#include <iostream>
 
 
 PP::PP() {}
@@ -68,14 +69,16 @@ void PP::FindFront(){
         dis2frnt = other_vehicles[i][5];
      }
   }
+  //std::cout<<"front vehicle index"<<indx<<std::endl;
 
   FrontVeh_info.x = other_vehicles[indx][1];
   FrontVeh_info.y = other_vehicles[indx][2];
   FrontVeh_info.vx= other_vehicles[indx][3];
   FrontVeh_info.vy = other_vehicles[indx][4];
   FrontVeh_info.s = other_vehicles[indx][5];
-  FrontVeh_info.d = other_vehicles[indx][6];
+  FrontVeh_info.d = EgoVeh_info.d;
   FrontVeh_info.speed = sqrt(FrontVeh_info.vx*FrontVeh_info.vx + FrontVeh_info.vy*FrontVeh_info.vy);
+
   //return {indx, dis2frnt};
 }
 
@@ -128,35 +131,135 @@ void PP::generate_path_circle() {
   }
 }
 
-double PP::generate_path_speed(double s_ego, double s_front, double v_ego, double v_front)
+/*double PP::generate_path_speed(double s_ego, double s_front, double v_ego2, double v_front)
 {  double delt_s = s_front - s_ego;
-   double speed_ref = V_ref*(1.0-exp(-1.2*(delt_s-10.0)/20.0));
-   speed_ref = max(speed_ref,0.0);
-   double delt_speed = v_front - v_ego;
-   double acc_plan = delt_speed*0.2;
-   acc_plan = min(acc_plan,1.0);
-   acc_plan = max (acc_plan, -1.0);
-   return v_ego + acc_plan*DT;
-}
+   //bool istoofar = true;
 
-void PP::generate_s_path()
+   double speed_trg = V_ref*(1.0-exp(-1.2*(delt_s-10.0)/20.0)); // speed reference from distance
+   speed_trg = max(speed_trg,0.0);
+
+   double delt_speed = speed_trg - v_ego2;
+   double acc_plan = delt_speed*0.2;
+   //std::cout<<"delt_speed = " << delt_speed<<std::endl;
+
+
+   acc_plan = min(acc_plan,1.0);
+   acc_plan = max (acc_plan, -5.0);
+   //std::cout<<"acc_plan=" << acc_plan<<std::endl;
+
+   return min(v_ego2 + acc_plan*0.02, V_ref);
+}*/
+
+/*void PP::generate_s_path()
 {
   ResetNewPath();
-  NewPath.s={};
+  //RetainPathXY();
   double s_ego = EgoVeh_info.s;
   double v_ego = EgoVeh_info.speed;
   double s_front = FrontVeh_info.s;
   double v_front = FrontVeh_info.speed;
+  double v_ego_next;
+
   for (int i=0; i< path_size; i++)
   {
-    double v_ego_next= generate_path_speed(s_ego, s_front, v_ego,v_front);
-    //v_ego_next = V_ref;
-    s_ego +=  (v_ego+v_ego_next)*DT/2.0;
+    //v_ego_next= generate_path_speed(s_ego, s_front, v_ego,v_front);
+
+    double delt_s = s_front - s_ego;
+    double speed_trg = V_ref*(1.0-exp(-1.2*(delt_s-30)/20.0)); // speed reference from distance
+
+    speed_trg = max(speed_trg,0.0);
+    speed_trg = min (speed_trg, V_ref);
+
+    double delt_speed = speed_trg - v_ego;
+    double acc_plan = delt_speed*0.2;
+     //std::cout<<"delt_speed = " << delt_speed<<std::endl;
+     //acc_plan = 1.0;
+     //acc_plan = min(acc_plan,1.0);
+     //acc_plan = max (acc_plan, -5.0);
+     v_ego_next = v_ego + acc_plan*0.02;
+     if (v_ego_next > V_ref) {v_ego_next = V_ref;}
+     if (v_ego_next < 0.0) {v_ego_next = 0.0;}
+
+    // v_ego_next = max(v_ego + acc_plan*0.02, 0.0);
+
+    //update distance, speed
+    s_ego +=  (v_ego+v_ego_next)*0.02/2.0;
+    //s_ego += v_ego*DT;
+    //s_ego += v_ego*DT;
     s_front += v_front * DT;
     v_ego = v_ego_next;
     NewPath.s.push_back(s_ego);
+
+       if (i==0){
+        //std::cout<<"s_ego = " <<s_ego << " s_front=" << s_front<<" v_ego="<<v_ego<<" v_front="<<v_front<<std::endl;
+        //std::cout<<"delt_s = "<<delt_s<<std::endl;
+        std::cout<<"spd trg="<<speed_trg<<std::endl;
+        std::cout<<"dis_gap = " << s_front- s_ego<<std::endl;
+         std::cout<<"planned distance = "<<endl;}
+        if (i<10) {
+          std::cout<<s_ego<<std::endl;
+        }
   }
+
+
+} */
+
+void PP::generate_s_path()
+{
+  RetainPathXY();
+  double s_ego = PrevPath.s_end;
+  double v_ego = EgoVeh_info.speed;
+
+  double v_front = FrontVeh_info.speed;
+  double s_front = FrontVeh_info.s + (PrevPath.path_size -1)*v_front;
+  if (PrevPath.path_size <1) {s_front =FrontVeh_info.s;}
+
+  std::cout<<"pre path size"<<PrevPath.path_size<<std::endl;
+
+  double v_ego_next;
+
+  for (int i=PrevPath.path_size; i< path_size; i++)
+  {
+    double delt_s = s_front - s_ego;
+    double speed_trg = V_ref*(1.0-exp(-1.2*(delt_s-30)/20.0)); // speed reference from distance
+
+    speed_trg = max(speed_trg,0.0);
+    speed_trg = min (speed_trg, V_ref);
+
+    double delt_speed = speed_trg - v_ego;
+    double acc_plan = delt_speed*0.2;
+     //std::cout<<"delt_speed = " << delt_speed<<std::endl;
+     //acc_plan = 1.0;
+     acc_plan = min(acc_plan,1.0);
+     acc_plan = max (acc_plan, -5.0);
+
+     v_ego_next = v_ego + acc_plan*0.02;
+     if (v_ego_next > V_ref) {v_ego_next = V_ref;}
+     if (v_ego_next < 0.0) {v_ego_next = 0.0;}
+
+    //update distance, speed
+    s_ego +=  (v_ego+v_ego_next)*0.02/2.0;
+    //s_ego += v_ego*DT;
+    //s_ego += v_ego*DT;
+    s_front += v_front * DT;
+    v_ego = v_ego_next;
+    NewPath.s.push_back(s_ego);
+
+       if (i==0){
+        std::cout<<"s_ego = " <<s_ego << " s_front=" << s_front<<" v_ego="<<v_ego<<" v_front="<<v_front<<std::endl;
+        std::cout<<"delt_s = "<<delt_s<<std::endl;
+        std::cout<<"spd trg="<<speed_trg<<std::endl;
+        std::cout<<"dis_gap = " << s_front- s_ego<<std::endl;
+         std::cout<<"planned distance = "<<endl;}
+        if (i<10) {
+          std::cout<<s_ego<<std::endl;
+        }
   }
+
+
+}
+
+
 
 
   void PP::lane_keep_path()

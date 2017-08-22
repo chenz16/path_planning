@@ -10,9 +10,8 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
 #include <chrono>
-#include "PP.h"
-//#include "MPC.h"
-#include "helpfunc.cpp"
+#include "PathPlanner.h"
+#include "helpfunc.c"
 #include "spline.h"
 
 
@@ -87,6 +86,11 @@ int main() {
           	double car_d = j[1]["d"];
           	double car_yaw = j[1]["yaw"];
           	double car_speed = j[1]["speed"];
+            if (car_speed>50) {
+              car_speed = 0;
+            }
+
+            //cout<<"current speed = " << car_speed<<endl;
 
           	// Previous path data given to the Planner
           	auto previous_path_x = j[1]["previous_path_x"];
@@ -99,7 +103,6 @@ int main() {
           	auto sensor_fusion = j[1]["sensor_fusion"];
 
           	json msgJson;
-
           	vector<double> next_x_vals;
           	vector<double> next_y_vals;
             // TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
@@ -111,8 +114,10 @@ int main() {
             pp.FindFront();
             //pp.lane_keep_path();
             pp.generate_s_path();
-            vector<double> s_path = pp.NewPath.s;
+            //vector<double> s_path = pp.NewPath.s;
 
+
+          vector<double> s_path = pp.NewPath.s;
           vector<vector<double>> xy_path(2, vector<double>(pp.path_size));
           for (int i=0; i< pp.path_size; i++){
 

@@ -44,10 +44,11 @@ class PP {
   virtual ~PP();
 
   size_t path_size = 50;
-  double V_ref = 20;
+  double V_ref = 25;
   VehInfo EgoVeh_info;
   VehInfo FrontVeh_info;
   vector<vector<double>> other_vehicles;
+	bool istooclose=false;
 
 
   PathInfo NewPath;
