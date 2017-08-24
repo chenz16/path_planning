@@ -13,6 +13,8 @@
 using namespace std;
 using json = nlohmann::json;
 
+using SensorData = vector<double>; //[id, x, y, vx, vy, s, d]
+
 // For converting back and forth between radians and degrees.
 constexpr double pi();
 double deg2rad(double x);
@@ -27,7 +29,7 @@ vector<double> getFrenet(double x, double y, double theta, vector<double> maps_x
 vector<double> getXY(double s, double d, vector<double> maps_s, vector<double> maps_x, vector<double> maps_y);
 
 // Self driving car
-struct SelfDrivingCar {
+/*struct SelfDrivingCar {
 public:
 
   SelfDrivingCar(double x, double y,
@@ -44,10 +46,25 @@ public:
   double d;
   double yaw; // bearing
   double speed; // speed
+};*/
+
+struct SelfDrivingCar(double x, double y, double yaw, double speed) {
+public:
+  double x; // map coordinate
+  double y;
+  double s; // frenet coordinate
+  double d;
+  double yaw; // bearing
+  double speed; // speed
 };
 
+
+
+
+
+
 // other cars on the road
-struct PeerCar {
+/*struct PeerCar {
 public:
   PeerCar(const SensorData & sensor):
     id(sensor[0]), x(sensor[1]), y(sensor[2]),
@@ -61,11 +78,15 @@ public:
   double vy;
   double s; // frenet coordinate
   double d;
+};*/
+
+struct PeerCar (const SensorData &sensor) {
+public:
+  int id;
+  double x; // map coordinate
+  double y;
+  double vx; // velocity
+  double vy;
+  double s; // frenet coordinate
+  double d;
 };
-
-
-
-class Map(const Points & x, const Points & y,const Points & s, const Points & dx,const Points & dy)
-{
-
-}

@@ -54,18 +54,20 @@ int main() {
   	map_waypoints_dx.push_back(d_x);
   	map_waypoints_dy.push_back(d_y);
   }
+  // construct the path planner
+  PathPlanner planner(Map(map_waypoints_x,
+                          map_waypoints_y,
+                          map_waypoints_s,
+                          map_waypoints_dx,
+                          map_waypoints_dy));
 
-  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+  h.onMessage([&planner](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
     //auto sdata = string(data).substr(0, length);
     //cout << sdata << endl;
-    PP pp;
-    //MPC mpc;
-    bool veh_start = false;
-
 
     if (length && length > 2 && data[0] == '4' && data[1] == '2') {
 
@@ -79,53 +81,35 @@ int main() {
         if (event == "telemetry") {
           // j[1] is the data JSON object
 
-        	// Main car's localization Data
-          	double car_x = j[1]["x"];
-          	double car_y = j[1]["y"];
-          	double car_s = j[1]["s"];
-          	double car_d = j[1]["d"];
-          	double car_yaw = j[1]["yaw"];
-          	double car_speed = j[1]["speed"];
-            if (car_speed>50) {
-              car_speed = 0;
+          // Main car's localization Data
+            double car_x = j[1]["x"];
+            double car_y = j[1]["y"];
+            double car_s = j[1]["s"];
+            double car_d = j[1]["d"];
+            double car_yaw = j[1]["yaw"];
+            double car_speed = j[1]["speed"];
+
+            // Previous path data given to the Planner
+            auto previous_path_x = j[1]["previous_path_x"];
+            auto previous_path_y = j[1]["previous_path_y"];
+            // Previous path's end s and d values
+            double end_path_s = j[1]["end_path_s"];
+            double end_path_d = j[1]["end_path_d"];
+
+            // Sensor Fusion Data, a list of all other cars on the same side of the road.
+            auto sensor_fusion = j[1]["sensor_fusion"];
+
+            json msgJson;
+
+            // Collect information and plan path
+            SelfDrivingCar sdc(car_x, car_y, car_s, car_d, car_yaw, car_speed);
+            Path previous_path(previous_path_x, previous_path_y);
+            vector<PeerCar> peers;
+            for (const SensorData & sensor : sensor_fusion) {
+              peers.push_back(PeerCar{sensor});
             }
-
-            //cout<<"current speed = " << car_speed<<endl;
-
-          	// Previous path data given to the Planner
-          	auto previous_path_x = j[1]["previous_path_x"];
-          	auto previous_path_y = j[1]["previous_path_y"];
-          	// Previous path's end s and d values
-          	double end_path_s = j[1]["end_path_s"];
-          	double end_path_d = j[1]["end_path_d"];
-
-          	// Sensor Fusion Data, a list of all other cars on the same side of the road.
-          	auto sensor_fusion = j[1]["sensor_fusion"];
-
-          	json msgJson;
-          	vector<double> next_x_vals;
-          	vector<double> next_y_vals;
-            // TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
-
-
-            vector<double> veh_info = {car_x, car_y, car_s, car_d, car_yaw, car_speed};
-            pp.RetrievePreviousPathInfo(previous_path_x, previous_path_y, veh_info);
-            pp.update_env(sensor_fusion, map_waypoints_s, map_waypoints_x, map_waypoints_y);
-            pp.FindFront();
-            //pp.lane_keep_path();
-            pp.generate_s_path();
-            //vector<double> s_path = pp.NewPath.s;
-
-
-          vector<double> s_path = pp.NewPath.s;
-          vector<vector<double>> xy_path(2, vector<double>(pp.path_size));
-          for (int i=0; i< pp.path_size; i++){
-
-              double next_s = s_path[i];
-              vector<double> xy_grid = getXY(next_s, 2, map_waypoints_s, map_waypoints_x, map_waypoints_y);
-              next_x_vals.push_back(xy_grid[0]);
-              next_y_vals.push_back(xy_grid[1]);
-            }
+            Path planned_path = planner.plan(previous_path, sdc, peers);
+            cout << "car: " << " s=" << sdc.s << " d=" << sdc.d << endl;
 
             //END
           	msgJson["next_x"] = next_x_vals;
