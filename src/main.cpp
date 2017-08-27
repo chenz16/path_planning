@@ -99,7 +99,7 @@ int main() {
             json msgJson;
 
             // Collect information and plan path
-            SelfDrivingCar sdc(car_x, car_y, car_s, car_d, car_yaw, car_speed);
+            EgoCarInfo ego(car_x, car_y, car_s, car_d, car_yaw, car_speed);
             Path previous_path(previous_path_x, previous_path_y);
             vector<PeerCar> peers;
 
@@ -107,8 +107,8 @@ int main() {
               peers.push_back(PeerCar{sensor});
             }
 
-            Path planned_path = planner.plan(previous_path, sdc, peers);
-            cout << "car: " << " s=" << sdc.s << " d=" << sdc.d << endl;
+            Path planned_path = planner.plan(previous_path, ego, peers);
+            //cout << "car: " << " s=" << ego.s << " d=" << ego.d << endl;
 
             //END
           	//msgJson["next_x"] = next_x_vals;

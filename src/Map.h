@@ -35,9 +35,9 @@ public: // functions
     virtual ~Map();
 // member functions
     int find_lane(double car_d) const;// return lane index (0,1,2)
-    int find_front_car_in_lane(const SelfDrivingCar & sdc,
+    int find_front_car_in_lane(const EgoCarInfo & ego,
                                const vector<PeerCar> & peer_cars,int lane) const;
-    int find_rear_car_in_lane(const SelfDrivingCar & sdc,
+    int find_rear_car_in_lane(const EgoCarInfo & ego,
                               const vector<PeerCar> & peer_cars,
                               int lane) const;
 };

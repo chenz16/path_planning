@@ -64,7 +64,7 @@ int Map::find_lane(double car_d) const {
 // find the index of a peer car immediately before self-driving-car
 // on a certain lane
 // return -1 if there is no car found
-int Map::find_front_car_in_lane(const SelfDrivingCar & sdc,
+int Map::find_front_car_in_lane(const EgoCarInfo & ego,
                            const vector<PeerCar> & peer_cars,
                            int lane) const {
   int found_car = -1;
@@ -72,8 +72,8 @@ int Map::find_front_car_in_lane(const SelfDrivingCar & sdc,
   for (auto i = 0; i < peer_cars.size(); ++i) {
     const PeerCar & car = peer_cars[i];
     auto car_lane = find_lane(car.d);
-    if ( (car_lane == lane) and (car.s >= sdc.s) ) {
-      double dist = car.s - sdc.s;
+    if ( (car_lane == lane) and (car.s >= ego.s) ) {
+      double dist = car.s - ego.s;
       if (dist < found_dist) {
         found_car = i;
         found_dist = dist;
@@ -86,7 +86,7 @@ int Map::find_front_car_in_lane(const SelfDrivingCar & sdc,
 // find the index of a peer car immediately after self-driving-car
 // on a certain lane
 // return -1 if there is no car found
-int Map::find_rear_car_in_lane(const SelfDrivingCar & sdc,
+int Map::find_rear_car_in_lane(const EgoCarInfo& ego,
                           const vector<PeerCar> & peer_cars,
                           int lane) const {
   int found_car = -1;
@@ -94,8 +94,8 @@ int Map::find_rear_car_in_lane(const SelfDrivingCar & sdc,
   for (auto i = 0; i < peer_cars.size(); ++i) {
     const PeerCar & car = peer_cars[i];
     auto car_lane = find_lane(car.d);
-    if ( (car_lane == lane) and (car.s <= sdc.s) ) {
-      double dist = sdc.s - car.s;
+    if ( (car_lane == lane) and (car.s <= ego.s) ) {
+      double dist = ego.s - car.s;
       if (dist < found_dist) {
         found_car = i;
         found_dist = dist;

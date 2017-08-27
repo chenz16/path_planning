@@ -27,7 +27,7 @@ vector<double> getFrenet(double x, double y, double theta, vector<double> maps_x
 vector<double> getXY(double s, double d, vector<double> maps_s, vector<double> maps_x, vector<double> maps_y);
 
 // ego vehicle struct
-struct SelfDrivingCar {
+struct EgoCarInfo {
 public:
   double x; // based on map coordinate
   double y;
@@ -35,8 +35,8 @@ public:
   double d;
   double yaw;
   double speed; // vehicle speed
-  SelfDrivingCar(double x, double y, double s, double d, double yaw, double speed);//constrcutor
-  virtual ~SelfDrivingCar();
+  EgoCarInfo (double x, double y, double s, double d, double yaw, double speed);//constrcutor
+  virtual ~EgoCarInfo ();
 };
 
 

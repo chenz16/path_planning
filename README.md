@@ -93,11 +93,7 @@ The code compiles correclty but with a few warnings. I was not able to resolve t
 
 ### The car is able to drive at least 4.32 miles without incident.
 
-The car is able to at least run 4.32 mile without incident. However, there are several issues found during testing: 
-
-* At the starting point, the car runs with some errors. I suspect it is due to the simulator issue. I once printed the velocity at the first few sampling steps and found the speed jumps to 4xx m/s at the second sampling step. 
-
-* after the first lap, the car may suddenlty run out of track and after a few second, it returns back. Did not have time to find the root cause. 
+The car is able to at least run 4.32 mile without incident. However, after the first lap, the car MAY suddenlty run out of track and after a few second, it returns back. Did not have time to find the root cause. 
 
 
 ### The car drives according to the speed limit.
@@ -106,7 +102,7 @@ No violation to speed
 
 ### Max Acceleration and Jerk are not Exceeded.
 
-No violation in 4.32 mile running
+No violation
 
 ### Car does not have collisions.
 
