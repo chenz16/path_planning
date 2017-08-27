@@ -1,4 +1,3 @@
-//#include "MPC.h"
 #include <fstream>
 #include <math.h>
 #include <uWS/uWS.h>
@@ -11,12 +10,10 @@
 #include "json.hpp"
 #include <chrono>
 #include "PathPlanner.h"
-#include "helpfunc.c"
-#include "spline.h"
-
 
 using namespace std;
 using json = nlohmann::json;
+
 
 int main() {
   uWS::Hub h;
@@ -105,15 +102,20 @@ int main() {
             SelfDrivingCar sdc(car_x, car_y, car_s, car_d, car_yaw, car_speed);
             Path previous_path(previous_path_x, previous_path_y);
             vector<PeerCar> peers;
+
             for (const SensorData & sensor : sensor_fusion) {
               peers.push_back(PeerCar{sensor});
             }
+
             Path planned_path = planner.plan(previous_path, sdc, peers);
             cout << "car: " << " s=" << sdc.s << " d=" << sdc.d << endl;
 
             //END
-          	msgJson["next_x"] = next_x_vals;
-          	msgJson["next_y"] = next_y_vals;
+          	//msgJson["next_x"] = next_x_vals;
+          	//msgJson["next_y"] = next_y_vals;
+
+            msgJson["next_x"] = planned_path.xs;
+            msgJson["next_y"] = planned_path.ys;
 
           	auto msg = "42[\"control\","+ msgJson.dump()+"]";
 

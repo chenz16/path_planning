@@ -7,7 +7,7 @@ add_definitions(-std=c++11)
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
-set(sources src/PP.cpp src/main.cpp)
+set(sources src/helpfunc.cpp src/Map.cpp src/PathPlanner.cpp src/main.cpp)
 
 include_directories(src/Eigen-3.3)
 

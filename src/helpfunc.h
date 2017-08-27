@@ -2,18 +2,16 @@
 #define HELPFUNC_H
 
 #include <fstream>
-#include <math.h>
-#include <chrono>
 #include <iostream>
-#include <thread>
 #include <vector>
-#include "Eigen-3.3/Eigen/Core"
-#include "Eigen-3.3/Eigen/QR"
-#include "json.hpp"
-using namespace std;
-using json = nlohmann::json;
+#include "spline.h"
 
-using SensorData = vector<double>; //[id, x, y, vx, vy, s, d]
+using namespace std;
+/**************************Constants and Types*******************/
+const double INF = numeric_limits<double>::infinity();
+typedef vector<double> Points;
+typedef vector<double> SensorData;
+typedef tk::spline Trajectory;
 
 // For converting back and forth between radians and degrees.
 constexpr double pi();
@@ -28,65 +26,43 @@ vector<double> getFrenet(double x, double y, double theta, vector<double> maps_x
 // Transform from Frenet s,d coordinates to Cartesian x,y
 vector<double> getXY(double s, double d, vector<double> maps_s, vector<double> maps_x, vector<double> maps_y);
 
-// Self driving car
-/*struct SelfDrivingCar {
+// ego vehicle struct
+struct SelfDrivingCar {
 public:
-
-  SelfDrivingCar(double x, double y,
-                 double s, double d,
-                 double yaw, double speed):
-                 x(x), y(y),
-                 s(s), d(d),
-                 yaw(yaw),
-                 speed(speed) {};
-
-  double x; // map coordinate
+  double x; // based on map coordinate
   double y;
-  double s; // frenet coordinate
+  double s; //based on frenet coordinate
   double d;
-  double yaw; // bearing
-  double speed; // speed
-};*/
-
-struct SelfDrivingCar(double x, double y, double yaw, double speed) {
-public:
-  double x; // map coordinate
-  double y;
-  double s; // frenet coordinate
-  double d;
-  double yaw; // bearing
-  double speed; // speed
+  double yaw;
+  double speed; // vehicle speed
+  SelfDrivingCar(double x, double y, double s, double d, double yaw, double speed);//constrcutor
+  virtual ~SelfDrivingCar();
 };
 
 
-
-
-
-
-// other cars on the road
-/*struct PeerCar {
+// other vehicle info
+struct PeerCar {
 public:
-  PeerCar(const SensorData & sensor):
-    id(sensor[0]), x(sensor[1]), y(sensor[2]),
-    vx(sensor[3]), vy(sensor[4]),
-    s(sensor[5]), d(sensor[6]) {}
-
   int id;
-  double x; // map coordinate
+  double x; // based on map coordinate
   double y;
   double vx; // velocity
   double vy;
-  double s; // frenet coordinate
+  double s; // based on frenet coordinate
   double d;
-};*/
-
-struct PeerCar (const SensorData &sensor) {
-public:
-  int id;
-  double x; // map coordinate
-  double y;
-  double vx; // velocity
-  double vy;
-  double s; // frenet coordinate
-  double d;
+  PeerCar(const SensorData & sensor);
+  virtual ~PeerCar();
 };
+
+// path struct
+struct Path {
+public:
+  Points xs;// map coordinate
+  Points ys;
+  size_t size() const;
+  Path(const Points xs, const Points ys);
+  Path (const Path & rhs);
+  virtual ~Path();
+};
+
+#endif

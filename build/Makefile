@@ -123,32 +123,86 @@ path_planning/fast:
 	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/build
 .PHONY : path_planning/fast
 
-src/PP.o: src/PP.cpp.o
+src/Map.o: src/Map.cpp.o
 
-.PHONY : src/PP.o
+.PHONY : src/Map.o
 
 # target to build an object file
-src/PP.cpp.o:
-	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/PP.cpp.o
-.PHONY : src/PP.cpp.o
+src/Map.cpp.o:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/Map.cpp.o
+.PHONY : src/Map.cpp.o
 
-src/PP.i: src/PP.cpp.i
+src/Map.i: src/Map.cpp.i
 
-.PHONY : src/PP.i
+.PHONY : src/Map.i
 
 # target to preprocess a source file
-src/PP.cpp.i:
-	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/PP.cpp.i
-.PHONY : src/PP.cpp.i
+src/Map.cpp.i:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/Map.cpp.i
+.PHONY : src/Map.cpp.i
 
-src/PP.s: src/PP.cpp.s
+src/Map.s: src/Map.cpp.s
 
-.PHONY : src/PP.s
+.PHONY : src/Map.s
 
 # target to generate assembly for a file
-src/PP.cpp.s:
-	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/PP.cpp.s
-.PHONY : src/PP.cpp.s
+src/Map.cpp.s:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/Map.cpp.s
+.PHONY : src/Map.cpp.s
+
+src/PathPlanner.o: src/PathPlanner.cpp.o
+
+.PHONY : src/PathPlanner.o
+
+# target to build an object file
+src/PathPlanner.cpp.o:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/PathPlanner.cpp.o
+.PHONY : src/PathPlanner.cpp.o
+
+src/PathPlanner.i: src/PathPlanner.cpp.i
+
+.PHONY : src/PathPlanner.i
+
+# target to preprocess a source file
+src/PathPlanner.cpp.i:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/PathPlanner.cpp.i
+.PHONY : src/PathPlanner.cpp.i
+
+src/PathPlanner.s: src/PathPlanner.cpp.s
+
+.PHONY : src/PathPlanner.s
+
+# target to generate assembly for a file
+src/PathPlanner.cpp.s:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/PathPlanner.cpp.s
+.PHONY : src/PathPlanner.cpp.s
+
+src/helpfunc.o: src/helpfunc.cpp.o
+
+.PHONY : src/helpfunc.o
+
+# target to build an object file
+src/helpfunc.cpp.o:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/helpfunc.cpp.o
+.PHONY : src/helpfunc.cpp.o
+
+src/helpfunc.i: src/helpfunc.cpp.i
+
+.PHONY : src/helpfunc.i
+
+# target to preprocess a source file
+src/helpfunc.cpp.i:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/helpfunc.cpp.i
+.PHONY : src/helpfunc.cpp.i
+
+src/helpfunc.s: src/helpfunc.cpp.s
+
+.PHONY : src/helpfunc.s
+
+# target to generate assembly for a file
+src/helpfunc.cpp.s:
+	$(MAKE) -f CMakeFiles/path_planning.dir/build.make CMakeFiles/path_planning.dir/src/helpfunc.cpp.s
+.PHONY : src/helpfunc.cpp.s
 
 src/main.o: src/main.cpp.o
 
@@ -186,9 +240,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... path_planning"
-	@echo "... src/PP.o"
-	@echo "... src/PP.i"
-	@echo "... src/PP.s"
+	@echo "... src/Map.o"
+	@echo "... src/Map.i"
+	@echo "... src/Map.s"
+	@echo "... src/PathPlanner.o"
+	@echo "... src/PathPlanner.i"
+	@echo "... src/PathPlanner.s"
+	@echo "... src/helpfunc.o"
+	@echo "... src/helpfunc.i"
+	@echo "... src/helpfunc.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

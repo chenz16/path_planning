@@ -1,16 +1,33 @@
 #include <fstream>
 #include <math.h>
-#include <chrono>
 #include <iostream>
 #include <thread>
 #include <vector>
-#include "Eigen-3.3/Eigen/Core"
-#include "Eigen-3.3/Eigen/QR"
-#include "json.hpp"
+#include "helpfunc.h"
 using namespace std;
-using json = nlohmann::json;
 
+// SelfDrivingCar sturct constrcutor
+SelfDrivingCar::SelfDrivingCar(double x, double y,double s, double d,double yaw, double speed):
+                                x(x), y(y), s(s), d(d), yaw(yaw),speed(speed) {}
 
+SelfDrivingCar::~SelfDrivingCar(){}
+
+// PeerCar struct constrcutor
+PeerCar::PeerCar(const SensorData & sensor):
+                    id(sensor[0]), x(sensor[1]), y(sensor[2]),
+                     vx(sensor[3]), vy(sensor[4]),
+                     s(sensor[5]), d(sensor[6]) {}
+
+PeerCar::~PeerCar(){}
+
+// Path struct constrcutor
+ Path::Path (const Points xs, const Points ys): xs(xs), ys(ys) {}
+ Path::Path (const Path & rhs): xs(rhs.xs), ys(rhs.ys) {}
+
+ // Path struct member function
+ size_t Path::size() const {return xs.size();}
+
+ Path::~Path(){}
 
 // For converting back and forth between radians and degrees.
 constexpr double pi() {return M_PI;}

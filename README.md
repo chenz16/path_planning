@@ -85,50 +85,43 @@ A really helpful resource for doing this project and creating smooth trajectorie
     git checkout e94b6e1
     ```
 
-## Editor Settings
+## Go through the Rubric
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+### The code compiles correctly:
+    
+The code compiles correclty but with a few warnings. I was not able to resolve those warnings. Looks for any suggestion how to remove the warnings. 
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+### The car is able to drive at least 4.32 miles without incident.
 
-## Code Style
+The car is able to at least run 4.32 mile without incident. However, there are several issues found during testing: 
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+* At the starting point, the car runs with some errors. I suspect it is due to the simulator issue. I once printed the velocity at the first few sampling steps and found the speed jumps to 4xx m/s at the second sampling step. 
 
-## Project Instructions and Rubric
-
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+* after the first lap (4.32 miles), the car may suddenlty run out of track and after a few second, it returns back. Did not have time to find the root cause. 
 
 
-## Call for IDE Profiles Pull Requests
+### The car drives according to the speed limit.
 
-Help your fellow students!
+No violation to speed 
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to ensure
-that students don't feel pressured to use one IDE or another.
+### Max Acceleration and Jerk are not Exceeded.
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+No violation in 4.32 mile running
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
+### Car does not have collisions.
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
+No collision. 
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
+### The car stays in its lane, except for the time between changing lanes.
 
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
+The car stays in its lane except for the time during lane change. 
+
+### The car is able to change lanes
+
+The car is able to change lanes as expected. 
+
+### There is a reflection on how to generate paths.
+
+Comments were made in the code regarding to how to generate path. 
+
+
