@@ -93,7 +93,7 @@ The code compiles correclty but with a few warnings. I was not able to resolve t
 
 ### The car is able to drive at least 4.32 miles without incident.
 
-The car is able to at least run 4.32 mile without incident. However, after the first lap, the car MAY suddenlty run out of track and after a few second, it returns back. Did not have time to find the root cause. 
+The car is able to at least run 4.32 mile without incident. However, after the first lap, the car MAY suddenlty run out of track and after a few seconds, it returns back. Did not have time to find the root cause. 
 
 
 ### The car drives according to the speed limit.
