@@ -97,7 +97,7 @@ The car is able to at least run 4.32 mile without incident. However, there are s
 
 * At the starting point, the car runs with some errors. I suspect it is due to the simulator issue. I once printed the velocity at the first few sampling steps and found the speed jumps to 4xx m/s at the second sampling step. 
 
-* after the first lap (4.32 miles), the car may suddenlty run out of track and after a few second, it returns back. Did not have time to find the root cause. 
+* after the first lap, the car may suddenlty run out of track and after a few second, it returns back. Did not have time to find the root cause. 
 
 
 ### The car drives according to the speed limit.
