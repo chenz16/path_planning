@@ -6,7 +6,7 @@
 #include "helpfunc.h"
 using namespace std;
 
-// SelfDrivingCar sturct constrcutor
+// EgoCarInfo sturct constrcutor
 EgoCarInfo::EgoCarInfo(double x, double y,double s, double d,double yaw, double speed):
                                 x(x), y(y), s(s), d(d), yaw(yaw),speed(speed) {}
 
