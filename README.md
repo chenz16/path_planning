@@ -129,12 +129,12 @@ I defined a class called PathPlanner which plans lane change behavior and also g
 
 In the behavior planning step,  current ego vehicle information `EgoCarInfo  & ego `, the surrounding vehicle information `const vector<PeerCar> &peers`, and previous planned path  `const Path & previous_path` are used to determine either the ego vehicle wants to keep the current lane or want to do lane change. If it is the former, it plans the path based on function call `Path keep_lane`; if it is the latter, it plans the path based on lane change method `Path change_lane`. More details are described as follows:
 
-    1) I updated the previous path by removing what has been consumed by the controller, particually for "previous_s_path" which is not provided by the simulator.
+1) Update the previous path by removing what has been consumed by the controller, particually for "previous_s_path" which is not provided by the simulator.
 
 	    auto n_consumed = previous_s_path.size() - previous_path.size();
 	    previous_s_path.erase(previous_s_path.begin(), previous_s_path.begin() + n_consumed);  
 
-    2) If the system is in process of lane change, it uses the previous planned path. If not, it plans the new path 
+2) If the system is in process of lane change, it uses the previous planned path. If not, it plans the new path 
 
 	    if (in_lane_change) {
 	      if (previous_path.size() <= PATH_LEN) {
@@ -144,7 +144,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 	    }
 
 
-    3) Then i collected the road information, particually for the lane of ego vehicle and the front vehicle speed at different lanes. 
+3) Collect the road information, particually for the lane of ego vehicle and the front vehicle speed at different lanes. 
 
 
 		    int ego_lane = map.find_lane(ego.d);
@@ -164,7 +164,228 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 		      frontcar_dists.push_back(frontcar_dist);
 		    }
 
-    4) The i make decision for keeping or chaning lane. a. if speed expection not met, consider possibility to change lane
-        b. if a suitable lane is found meeting safety criteria, then change the lane, else stay in lane
+4) make decision for keeping or chaning lane. a. if speed expection not met, consider possibility to change lane; b. if a suitable lane is found meeting safety criteria, then change the lane, else stay in lane
 
-    6) Consider changing lanes when speed is slow
+	    if (frontcar_speeds[ego_lane] <= 0.95 * MAX_SPEED) {
+
+	      // pick a target lane - only one lane crossing at a time is allowed
+	      int target_lane = ego_lane;
+	      if (ego_lane == 0) target_lane = 1;
+	      else if (ego_lane == 2) target_lane = 1;
+	      else /*ego_lane == 1*/ {
+		// prefer changing from 1 -> 0
+		target_lane = 0;
+		// unless lane 2 is faster and safe to change to
+		if ((frontcar_speeds[2] > frontcar_speeds[0]) and
+		      is_safe_to_change_lanes(ego, peers, 2))
+		  target_lane = 2; // changing from 1 -> 2
+		// or can bypass
+		if (frontcar_dists[2] >= frontcar_dists[0] + 100)
+		  target_lane = 2;
+	      }
+	      bool is_target_better = (frontcar_speeds[target_lane] >= frontcar_speeds[ego_lane] * 1.1);
+	      is_target_better &= (frontcar_dists[target_lane] + 30 >= frontcar_dists[ego_lane]);
+	      // or there is bigger room on the target lane to bypass the current traffic
+	      is_target_better |= (frontcar_dists[target_lane] >= 100 + frontcar_dists[ego_lane]);
+	      if (is_target_better) {
+		return change_lane(previous_path, ego, peers, target_lane - ego_lane);
+	      }
+	    }
+
+
+5) A car following strategy is developed in the function"PathPlanner::keep_lane". This strategy looks at the distance of ego vehicle from the front vehicle. If it is too close (less than the safey distance), it will set current vehicle speed target as a percentage  of front vehicle speed, else it is set at the maximum target speed; The car acceleration is determined based on the speed difference of ego vehicle and target speed. 
+
+	    if (frontcar_idx != -1) {
+	      const PeerCar & car(peers[frontcar_idx]);
+	      double response_time = INTERVAL * PATH_LEN;
+	      // assume the front car can brake all of sudden
+	      auto safe_dist = ego.speed * MPH2MPS * response_time + SAFE_CAR_DISTANCE;
+	      auto dist = car.s - ego.s;
+	      is_free_to_go = (dist >= safe_dist);
+	    }
+	    double target_speed = MAX_SPEED;
+	    if (! is_free_to_go ) {
+	      const PeerCar & car(peers[frontcar_idx]);
+	      double carspeed = sqrt(car.vx * car.vx + car.vy * car.vy);
+	      target_speed = carspeed * 0.7;
+	    }
+	    // whether there is a previous plan (if not, it means the car just starts)
+	    // it decides whether to follow previous path for smooth driving
+	    bool is_previous_plan_available = (previous_path.size() >= 2);
+	    double last_speed = -1; // last speed from previous plan
+	    int newplan_start  = -1; // step to start the new plan
+	    if (! is_previous_plan_available) {
+	      s_path.push_back(ego.s + 0.005); // first move
+	      last_speed = ego.speed * MPH2MPS;
+	      newplan_start = 1;
+	    } else {
+	      auto n = previous_s_path.size();
+	      for (auto i = 0; i < min(MAX_PLAN_LOOKBACK, n); ++i) {
+		s_path.push_back(previous_s_path[i]);
+	      }
+	      last_speed = (s_path.back() - s_path[s_path.size()-2]) / INTERVAL;
+	      newplan_start = s_path.size();
+	    }
+	    // continue the new plan
+	    double speed = last_speed;
+	    for (auto i = newplan_start; i < PATH_LEN; ++i) {
+	      speed = accelerate(speed, target_speed);
+	      s_path.push_back(s_path.back() + speed * INTERVAL);
+	    }
+
+	    // convert s path to (x, y) path
+	    Points x_path;
+	    Points y_path;
+	    // trajectory mapping from s -> (x, y)
+	    const auto & s2x(map.lane_s2x[ego_lane]);
+	    const auto & s2y(map.lane_s2y[ego_lane]);
+	    //const auto & s2x = map.lane_s2x[ego_lane];
+	    //const auto & s2y = map.lane_s2y[ego_lane];
+
+	    for (const auto & s: s_path) {
+	      x_path.push_back(s2x(s));
+	      y_path.push_back(s2y(s));
+	    }
+
+	    // remember the last plan
+	    previous_s_path = s_path;
+
+6) The strategy also checks if previous path exists. If not, it plans the first step of next path by adding a small distance (majorly used in the first movement). If yes, it reueses the previous step up to MAX_PLAN_LOOKBACK step. 
+
+    if (frontcar_idx != -1) {
+      const PeerCar & car(peers[frontcar_idx]);
+      double response_time = INTERVAL * PATH_LEN;
+      // assume the front car can brake all of sudden
+      auto safe_dist = ego.speed * MPH2MPS * response_time + SAFE_CAR_DISTANCE;
+      auto dist = car.s - ego.s;
+      is_free_to_go = (dist >= safe_dist);
+    }
+    double target_speed = MAX_SPEED;
+    if (! is_free_to_go ) {
+      const PeerCar & car(peers[frontcar_idx]);
+      double carspeed = sqrt(car.vx * car.vx + car.vy * car.vy);
+      target_speed = carspeed * 0.7;
+    }
+    // whether there is a previous plan (if not, it means the car just starts)
+    // it decides whether to follow previous path for smooth driving
+    bool is_previous_plan_available = (previous_path.size() >= 2);
+    double last_speed = -1; // last speed from previous plan
+    int newplan_start  = -1; // step to start the new plan
+    if (! is_previous_plan_available) {
+      s_path.push_back(ego.s + 0.005); // first move
+      last_speed = ego.speed * MPH2MPS;
+      newplan_start = 1;
+    } else {
+      auto n = previous_s_path.size();
+      for (auto i = 0; i < min(MAX_PLAN_LOOKBACK, n); ++i) {
+        s_path.push_back(previous_s_path[i]);
+      }
+      last_speed = (s_path.back() - s_path[s_path.size()-2]) / INTERVAL;
+      newplan_start = s_path.size();
+    }
+    // continue the new plan
+    double speed = last_speed;
+    for (auto i = newplan_start; i < PATH_LEN; ++i) {
+      speed = accelerate(speed, target_speed);
+      s_path.push_back(s_path.back() + speed * INTERVAL);
+    }
+
+    // convert s path to (x, y) path
+    Points x_path;
+    Points y_path;
+    // trajectory mapping from s -> (x, y)
+    const auto & s2x(map.lane_s2x[ego_lane]);
+    const auto & s2y(map.lane_s2y[ego_lane]);
+    //const auto & s2x = map.lane_s2x[ego_lane];
+    //const auto & s2y = map.lane_s2y[ego_lane];
+
+    for (const auto & s: s_path) {
+      x_path.push_back(s2x(s));
+      y_path.push_back(s2y(s));
+    }
+
+    // remember the last plan
+    previous_s_path = s_path;
+
+
+7) the path planning is done is Frenet coordination system. Then the path is converted to global coordination system. 
+
+// convert s path to (x, y) path
+    Points x_path;
+    Points y_path;
+    // trajectory mapping from s -> (x, y)
+    const auto & s2x(map.lane_s2x[ego_lane]);
+    const auto & s2y(map.lane_s2y[ego_lane]);
+    //const auto & s2x = map.lane_s2x[ego_lane];
+    //const auto & s2y = map.lane_s2y[ego_lane];
+
+    for (const auto & s: s_path) {
+      x_path.push_back(s2x(s));
+      y_path.push_back(s2y(s));
+    }
+
+
+8) In "Path PathPlanner::change_lane" function, the strategy first indentifis the front and rear vehicle distance and speed.  Anytime if it is not safet to change the lane, keep at the current lane. If it is ready to change the lane, the lane path is generated based on spline curve whose definition points are partially from current lane and partially from future lane. 
+
+ 
+      double start_s = ego.s - 20; // on old lane
+      double change_s = ego.s + 15; // across at this step
+      if (target_frontcar_idx != -1) // careful with front car on target
+        change_s = min(change_s, peers[target_frontcar_idx].s);
+      double end_s = change_s + 100; // to the new lane
+      for (auto s = start_s; s <= change_s; ++s) {
+        lanechange_s.push_back(s);
+        lanechange_x.push_back(current_s2x(s));
+        lanechange_y.push_back(current_s2y(s));
+      }
+      // 50 points for crossing the lane
+      for (auto s = change_s + 50; s <= end_s; ++s) {
+        lanechange_s.push_back(s);
+        lanechange_x.push_back(target_s2x(s));
+        lanechange_y.push_back(target_s2y(s));
+      }
+      lanechange_s2x.set_points(lanechange_s, lanechange_x);
+      lanechange_s2y.set_points(lanechange_s, lanechange_y);
+
+      // build the plan based on lane change trajectory
+      vector<double> s_path;
+      // pick the previous path
+      bool is_previous_plan_available = (previous_path.size() >= 2);
+      double last_speed = -1; // last speed from previous plan
+      int newplan_start  = -1; // step to start the new plan
+      if (! is_previous_plan_available) {
+        s_path.push_back(ego.s + 0.25); // first move
+        last_speed = ego.speed * MPH2MPS;
+        newplan_start = 1;
+      } else {
+        auto n = previous_s_path.size();
+        for (auto i = 0; i < min(MAX_PLAN_LOOKBACK, n); ++i) {
+          s_path.push_back(previous_s_path[i]);
+        }
+        last_speed = (s_path.back() - s_path[s_path.size()-2]) / INTERVAL;
+        newplan_start = s_path.size();
+      }
+      // continue to build new path - it is a longer plan
+      // than usual because it usually takes longer time
+      // to change lanes
+      double target_speed = min(last_speed * 1.02, MAX_SPEED);
+      double speed = last_speed;
+      for (auto i = newplan_start; i < PATH_LEN * 6; ++i) {
+        speed = accelerate(speed, target_speed);
+        s_path.push_back(s_path.back() + speed * INTERVAL);
+      }
+
+      // convert s path to (x, y) path
+      Points x_path;
+      Points y_path;
+      for (const auto & s: s_path) {
+        x_path.push_back(lanechange_s2x(s));
+        y_path.push_back(lanechange_s2y(s));
+      }
+
+      // remember the last plan
+      previous_s_path = s_path;
+
+
+
+
