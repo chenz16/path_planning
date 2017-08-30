@@ -198,9 +198,9 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
             if (frontcar_speeds[ego_lane] <= 0.95 * MAX_SPEED) {
               .....
-              **return change_lane(previous_path, ego, peers, target_lane - ego_lane)**;
+              return change_lane(previous_path, ego, peers, target_lane - ego_lane);
              .....}
-              **return keep_lane(previous_path, ego, peers)**;
+              return keep_lane(previous_path, ego, peers);
 
 
 
@@ -238,12 +238,12 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 #### How to plan lane change:
 
-- first, check if it is safe to chang lane
+- first, check if it is safe to chang lane:
 
-     if (! is_safe_to_change_lanes(ego, peers, target_lane)) {
-      // keep in lane if the dynamic env changes
-      return keep_lane(previous_path, ego, peers);
-     } else { .....
+		if (! is_safe_to_change_lanes(ego, peers, target_lane)) {
+		// keep in lane if the dynamic env changes
+		return keep_lane(previous_path, ego, peers);
+		} else { .....
 
 
 - Partial of the waypoints of new path come from current lane (by looking back for smoothness) and partial depends on the new lane. There are some waypoints gap between current lane point and future lane points for smoothness. After the grid points of new path is obtained, use spline function to smooth these path points. All of the path planning is first done in Frenent coordination system and then it is converted to map coordinate system through the spine functions whose grid points are obtained from what we discussed. 
@@ -308,6 +308,6 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 ### Summary 
 
-The planned path is able to run the track for one lap sucessfully with simulator provided by Udacity. However it is far from the real situation!!
+The planned path is able to run on the track in the simulator for one lap sucessfully. However it is far from the real situation!!
 
 
