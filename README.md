@@ -161,7 +161,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 		      frontcar_dists.push_back(frontcar_dist);
 		    }
 
-####  Make decision for keeping or chaning lane. After the decision is made, call the motion planning strategy to plan the path accordingly. 
+####  Make decision for keeping or changing lane. After the decision is made, call the motion planning strategy to plan the path accordingly. 
 
 -  if the front vehicle speed is low, consider changing lane;
 
@@ -206,7 +206,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 #### How to keep lane: 
 
-- A car following strategy is developed in the function"PathPlanner::keep_lane". This strategy looks at the distance of ego vehicle from the front vehicle. If it is too close (less than the safey distance), it will set current vehicle speed target as a percentage  of front vehicle speed, else it is set at the maximum target speed; The car acceleration is proportional to the speed difference of ego vehicle and the front target speed. 
+- A car following strategy is developed in the function"PathPlanner::keep_lane". This strategy looks at the distance of ego vehicle from the front vehicle. If it is too close (less than the safe distance), it will set current vehicle speed target as a percentage  of front vehicle speed, else it is set at the maximum target speed; The car acceleration is proportional to the speed difference of ego vehicle and the front target speed. 
 
 	    double speed = last_speed;
 	    for (auto i = newplan_start; i < PATH_LEN; ++i) {
@@ -214,7 +214,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 	      s_path.push_back(s_path.back() + speed * INTERVAL);
 	    }
 
--  This lane keeping strategy also does special handling for the firs move in order to move the vehicle. 
+-  This lane keeping strategy also does special handling for the first move in order to move the vehicle. 
 
 		double last_speed = -1; // last speed from previous plan
 		int newplan_start  = -1; // step to start the new plan
@@ -225,7 +225,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 		}  
 
 
-- the new plath reuses remaining points of previous path up to 'newplan_start = s_path.size()' step;
+- the new path reuses remaining points of previous path up to 'newplan_start = s_path.size()' step;
 
       auto n = previous_s_path.size();
       for (auto i = 0; i < min(MAX_PLAN_LOOKBACK, n); ++i) {
@@ -238,7 +238,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 #### How to plan lane change:
 
-- first, check if it is safe to chang lane:
+- first, check if it is safe to change lane:
 
 		if (! is_safe_to_change_lanes(ego, peers, target_lane)) {
 		// keep in lane if the dynamic env changes
@@ -246,7 +246,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 		} else { .....
 
 
-- Partial of the waypoints of new path come from current lane (by looking back for smoothness) and partial depends on the new lane. There are some waypoints gap between current lane point and future lane points for smoothness. After the grid points of new path is obtained, use spline function to smooth these path points. All of the path planning is first done in Frenent coordination system and then it is converted to map coordinate system through the spine functions whose grid points are obtained from what we discussed. 
+- Partial of the way points of new path come from current lane (by looking back for smoothness) and partial depends on the new lane. There are some way points gap between current lane point and future lane points for smoothness. After the grid points of new path is obtained, use spline function to smooth these path points. All of the path planning is first done in Frenet  coordination system and then it is converted to map coordinate system through the spine functions whose grid points are obtained from what we discussed. 
 
 	     double start_s = ego.s - 20; // on old lane
 	     double change_s = ego.s + 15; // across at this step
@@ -308,6 +308,5 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 ### Summary 
 
-The planned path is able to run on the track in the simulator for one lap sucessfully. However it is far from the real situation!!
-
+The planned path is able to run on the track in the simulator for one lap successfully. However it is far from the real situation!!
 
