@@ -130,12 +130,12 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 #### Preprocess real-time information before path planning:  
 
-a.  Align the vector size of previous path vector "s" and "x/y" by removing what has been consumed by the controller:
+-) Align the vector size of previous path vector "s" and "x/y" by removing what has been consumed by the controller:
 
 	    auto n_consumed = previous_s_path.size() - previous_path.size();
 	    previous_s_path.erase(previous_s_path.begin(), previous_s_path.begin() + n_consumed);  
 
-b.  Do not plan new plath during lane change unless the length of remaining path length from previous step is less than desired path length. 
+-) Do not plan new plath during lane change unless the length of remaining path length from previous step is less than desired path length. 
 
 	    if (in_lane_change) {
 	      if (previous_path.size() <= PATH_LEN) {
@@ -145,7 +145,7 @@ b.  Do not plan new plath during lane change unless the length of remaining path
 	    }
 
 
-c. Collect the road information, particually for the lane of ego vehicle and the front vehicle speed at different lanes. 
+-) Collect the road information, particually for the lane of ego vehicle and the front vehicle speed at different lanes. 
 
 		    for (auto lane = 0; lane <= map.RIGHTMOST_LANE; ++lane) {
 		      auto frontcar_idx = map.find_front_car_in_lane(ego, peers, lane);
