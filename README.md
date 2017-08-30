@@ -225,7 +225,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 		}  
 
 
-- the new path reuses remaining points of previous path up to 'newplan_start = s_path.size()' step;
+- The new path reuses remaining points of previous path up to s_path.size() steps;
 
       auto n = previous_s_path.size();
       for (auto i = 0; i < min(MAX_PLAN_LOOKBACK, n); ++i) {
