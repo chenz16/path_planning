@@ -128,7 +128,7 @@ I defined a class called PathPlanner which plans lane change behavior and also g
 
 In the behavior planning step,  current ego vehicle information `EgoCarInfo  & ego `, the surrounding vehicle information `const vector<PeerCar> &peers`, and previous planned path  `const Path & previous_path` are used to determine either the ego vehicle wants to keep the current lane or want to do lane change. If it is the former, it plans the path based on function call `Path keep_lane`; if it is the latter, it plans the path based on lane change method `Path change_lane`. More details are described as follows:
 
-1) Preprocess real-time information before path planning:  
+#### Preprocess real-time information before path planning:  
 
 a.  Align the vector size of previous path vector "s" and "x/y" by removing what has been consumed by the controller:
 
@@ -161,7 +161,7 @@ c. Collect the road information, particually for the lane of ego vehicle and the
 		      frontcar_dists.push_back(frontcar_dist);
 		    }
 
-2) Make decision for keeping or chaning lane. After the decision is made, call the motion planning strategy to plan the path accordingly. 
+####  Make decision for keeping or chaning lane. After the decision is made, call the motion planning strategy to plan the path accordingly. 
 
 a.  if the front vehicle speed is low, consider changing lane;
 
@@ -202,7 +202,7 @@ c. plan the path either for keeping lane or changing lane through function call:
 
 
 
-3) How to keep lane: 
+#### How to keep lane: 
 
 a. A car following strategy is developed in the function"PathPlanner::keep_lane". This strategy looks at the distance of ego vehicle from the front vehicle. If it is too close (less than the safey distance), it will set current vehicle speed target as a percentage  of front vehicle speed, else it is set at the maximum target speed; The car acceleration is proportional to the speed difference of ego vehicle and the front target speed. 
 
@@ -234,7 +234,7 @@ c. the new plath reuses remaining points of previous path up to 'newplan_start =
 
 
 
-4) How to plan lane change:
+#### How to plan lane change:
 
 a. first, check if it is safe to chang lane
 
@@ -304,6 +304,8 @@ b. Partial of the waypoints of new path come from current lane (by looking back 
 	      // remember the last plan
 	      previous_s_path = s_path;
 
+### Summary 
 
+The planned path is able to run the track for one lap sucessfully with simulator provided by Udacity. However it is far from the real situation!!
 
 
