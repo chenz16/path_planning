@@ -120,7 +120,6 @@ The car is able to change lanes as expected.
 I defined a class called PathPlanner which plans lane change behavior and also generate the path:
 
         Path plan(const Path & previous_path,const EgoCarInfo  & ego,const vector<PeerCar> &peers);
-
         // generate path for keeping lane
         Path keep_lane(const Path & previous_path, const EgoCarInfo  & ego,const vector<PeerCar> & peers);
         // generate path for lane change scenario
@@ -132,8 +131,9 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 - Align the vector size of previous path vector "s" and "x/y" by removing what has been consumed by the controller:
 
-	    auto n_consumed = previous_s_path.size() - previous_path.size();
-	    previous_s_path.erase(previous_s_path.begin(), previous_s_path.begin() + n_consumed);  
+	auto n_consumed = previous_s_path.size() - previous_path.size();
+	previous_s_path.erase(previous_s_path.begin(), previous_s_path.begin() + n_consumed);
+  
 
 - Do not plan new plath during lane change unless the length of remaining path length from previous step is less than desired path length. 
 
@@ -164,10 +164,10 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 ####  Make decision for keeping or chaning lane. After the decision is made, call the motion planning strategy to plan the path accordingly. 
 
 -  if the front vehicle speed is low, consider changing lane;
+		if (frontcar_speeds[ego_lane] <= 0.95 * MAX_SPEED) { ....}
 
 -  find a suitable lane based on current lane, speed difference and distance difference compared with the front vehicle at the target lane. 
 
-		    if (frontcar_speeds[ego_lane] <= 0.95 * MAX_SPEED) {
 
 		      // pick a target lane - only one lane crossing at a time is allowed
 		      int target_lane = ego_lane;
@@ -191,9 +191,10 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 		      if (is_target_better) {
 			return change_lane(previous_path, ego, peers, target_lane - ego_lane);
 		      }
-		    }
+		    
 
 -  plan the path either for keeping lane or changing lane through function call:
+
             if (frontcar_speeds[ego_lane] <= 0.95 * MAX_SPEED) {
               .....
               return change_lane(previous_path, ego, peers, target_lane - ego_lane);
@@ -246,8 +247,8 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 - Partial of the waypoints of new path come from current lane (by looking back for smoothness) and partial depends on the new lane. There are some waypoints gap between current lane point and future lane points for smoothness. After the grid points of new path is obtained, use spline function to smooth these path points. All of the path planning is first done in Frenent coordination system and then it is converted to map coordinate system through the spine functions whose grid points are obtained from what we discussed. 
 
-	      double start_s = ego.s - 20; // on old lane
-	      double change_s = ego.s + 15; // across at this step
+	     double start_s = ego.s - 20; // on old lane
+	     double change_s = ego.s + 15; // across at this step
 	      if (target_frontcar_idx != -1) // careful with front car on target
 		change_s = min(change_s, peers[target_frontcar_idx].s);
 	      double end_s = change_s + 100; // to the new lane
