@@ -130,12 +130,12 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 #### Preprocess real-time information before path planning:  
 
--) Align the vector size of previous path vector "s" and "x/y" by removing what has been consumed by the controller:
+- Align the vector size of previous path vector "s" and "x/y" by removing what has been consumed by the controller:
 
 	    auto n_consumed = previous_s_path.size() - previous_path.size();
 	    previous_s_path.erase(previous_s_path.begin(), previous_s_path.begin() + n_consumed);  
 
--) Do not plan new plath during lane change unless the length of remaining path length from previous step is less than desired path length. 
+- Do not plan new plath during lane change unless the length of remaining path length from previous step is less than desired path length. 
 
 	    if (in_lane_change) {
 	      if (previous_path.size() <= PATH_LEN) {
@@ -145,7 +145,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 	    }
 
 
--) Collect the road information, particually for the lane of ego vehicle and the front vehicle speed at different lanes. 
+- Collect the road information, particually for the lane of ego vehicle and the front vehicle speed at different lanes. 
 
 		    for (auto lane = 0; lane <= map.RIGHTMOST_LANE; ++lane) {
 		      auto frontcar_idx = map.find_front_car_in_lane(ego, peers, lane);
@@ -163,9 +163,9 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 
 ####  Make decision for keeping or chaning lane. After the decision is made, call the motion planning strategy to plan the path accordingly. 
 
-a.  if the front vehicle speed is low, consider changing lane;
+-  if the front vehicle speed is low, consider changing lane;
 
-b.  find a suitable lane based on current lane, speed difference and distance difference compared with the front vehicle at the target lane. 
+-  find a suitable lane based on current lane, speed difference and distance difference compared with the front vehicle at the target lane. 
 
 		    if (frontcar_speeds[ego_lane] <= 0.95 * MAX_SPEED) {
 
@@ -193,7 +193,7 @@ b.  find a suitable lane based on current lane, speed difference and distance di
 		      }
 		    }
 
-c. plan the path either for keeping lane or changing lane through function call:
+-  plan the path either for keeping lane or changing lane through function call:
             if (frontcar_speeds[ego_lane] <= 0.95 * MAX_SPEED) {
               .....
               return change_lane(previous_path, ego, peers, target_lane - ego_lane);
@@ -204,7 +204,7 @@ c. plan the path either for keeping lane or changing lane through function call:
 
 #### How to keep lane: 
 
-a. A car following strategy is developed in the function"PathPlanner::keep_lane". This strategy looks at the distance of ego vehicle from the front vehicle. If it is too close (less than the safey distance), it will set current vehicle speed target as a percentage  of front vehicle speed, else it is set at the maximum target speed; The car acceleration is proportional to the speed difference of ego vehicle and the front target speed. 
+- A car following strategy is developed in the function"PathPlanner::keep_lane". This strategy looks at the distance of ego vehicle from the front vehicle. If it is too close (less than the safey distance), it will set current vehicle speed target as a percentage  of front vehicle speed, else it is set at the maximum target speed; The car acceleration is proportional to the speed difference of ego vehicle and the front target speed. 
 
 	    double speed = last_speed;
 	    for (auto i = newplan_start; i < PATH_LEN; ++i) {
@@ -212,7 +212,7 @@ a. A car following strategy is developed in the function"PathPlanner::keep_lane"
 	      s_path.push_back(s_path.back() + speed * INTERVAL);
 	    }
 
-b.  This lane keeping strategy also does special handling for the firs move in order to move the vehicle. 
+-  This lane keeping strategy also does special handling for the firs move in order to move the vehicle. 
 
 	double last_speed = -1; // last speed from previous plan
 	    int newplan_start  = -1; // step to start the new plan
@@ -223,7 +223,7 @@ b.  This lane keeping strategy also does special handling for the firs move in o
 	    }  
 
 
-c. the new plath reuses remaining points of previous path up to 'newplan_start = s_path.size()' step;
+- the new plath reuses remaining points of previous path up to 'newplan_start = s_path.size()' step;
 
       auto n = previous_s_path.size();
       for (auto i = 0; i < min(MAX_PLAN_LOOKBACK, n); ++i) {
@@ -236,7 +236,7 @@ c. the new plath reuses remaining points of previous path up to 'newplan_start =
 
 #### How to plan lane change:
 
-a. first, check if it is safe to chang lane
+- first, check if it is safe to chang lane
 
      if (! is_safe_to_change_lanes(ego, peers, target_lane)) {
       // keep in lane if the dynamic env changes
@@ -244,7 +244,7 @@ a. first, check if it is safe to chang lane
     } else { .....
 
 
-b. Partial of the waypoints of new path come from current lane (by looking back for smoothness) and partial depends on the new lane. There are some waypoints gap between current lane point and future lane points for smoothness. After the grid points of new path is obtained, use spline function to smooth these path points. All of the path planning is first done in Frenent coordination system and then it is converted to map coordinate system through the spine functions whose grid points are obtained from what we discussed. 
+- Partial of the waypoints of new path come from current lane (by looking back for smoothness) and partial depends on the new lane. There are some waypoints gap between current lane point and future lane points for smoothness. After the grid points of new path is obtained, use spline function to smooth these path points. All of the path planning is first done in Frenent coordination system and then it is converted to map coordinate system through the spine functions whose grid points are obtained from what we discussed. 
 
 	      double start_s = ego.s - 20; // on old lane
 	      double change_s = ego.s + 15; // across at this step
