@@ -246,7 +246,7 @@ In the behavior planning step,  current ego vehicle information `EgoCarInfo  & e
 		} else { .....
 
 
-- Partial of the way points of new path come from current lane (by looking back for smoothness) and partial depends on the new lane. There are some way points gap between current lane point and future lane points for smoothness. After the grid points of new path is obtained, use spline function to smooth these path points. All of the path planning is first done in Frenet  coordination system and then it is converted to map coordinate system through the spine functions whose grid points are obtained from what we discussed. 
+- Partial of the way points of new path come from current lane (by looking back for smoothness) and partial depends on the new lane. There are some way points gap between current lane point and future lane points for smoothness. After the grid points of new path are obtained, use spline function to smooth these path points. All of the path planning is first done in Frenet  coordination system and then it is converted to map coordinate system through the spine functions whose grid points are obtained from global maps. 
 
 	     double start_s = ego.s - 20; // on old lane
 	     double change_s = ego.s + 15; // across at this step
